@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
+		<link rel="icon" href="favicon.png" type="image/png" />
+		<title>Spam Mail Classification</title>
+		<link rel="stylesheet" href="style.css" />
+		<link
+			rel="stylesheet"
+			href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+			integrity="sha512-..."
+			crossorigin="anonymous"
+		/>
+	</head>
+	<body>
+		<header>
+			<!--<img src="/Favicons/favicon-114x114.png" alt="The Logo" />-->
+			<h1>Spam Mail Classifier</h1>
+			<p>Upload your email message and get it classified as spam or not spam</p>
+		</header>
+		<main>
+			<form id="email-form" method="post" action="">
+				<div>
+					<label for="message">Enter The Email Message :</label>
+					<textarea id="message" name="message" ></textarea>
+				</div>
+				<div class="buttons">
+					<button
+						type="submit"
+						id="analyze-button"
+						value="Scan"
+						aria-label="Scan"
+					>
+						<i class="fas fa-search"></i>
+					</button>
+					<button
+						type="reset"
+						id="reset-button"
+						value="Reset"
+						aria-label="Reset"
+					>
+						<i class="fas fa-undo"></i>
+					</button>
+				</div>
+			</form>
+			<div id="loading">
+				<div class="spinner"></div>
+			</div>
+			<div id="result"></div>
+		</main>
+		<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+		<footer>
+			<p>Dhanuja Tharuka &copy; 2023</p>
+		</footer>
+
+
+		<script>
+				$(document).ready(function () {
+					// Hide loading animation
+					$("#loading").hide();
+
+					// Handle form submission
+					$("#email-form").submit(function (event) {
+						// Prevent form from submitting
+						event.preventDefault();
+
+						// Disable submit button
+						$("#analyze-button").prop("disabled", true);
+
+						// Check if message input is not empty
+						if ($("#message").val().trim() === "") {
+							alert("Please enter a message");
+							$("#analyze-button").prop("disabled", false);
+							return;
+						}
+
+						// Show loading animation
+						$("#loading").show();
+
+						// Make API request
+						var message = encodeURIComponent($("#message").val().trim());
+
+						$.ajax({
+							url: "http://127.0.0.1:8000/predict/?message="+message,
+							type: "POST",
+							dataType: "json",
+							success: function (data) {
+								// Hide loading animation
+								$("#loading").hide();
+
+								// Enable submit button
+								$("#analyze-button").prop("disabled", false);
+
+								// Display result
+								if (data === 1) {
+									$("#result")
+										.removeClass("not-spam")
+										.addClass("spam")
+										.html("<p>Spam</p>");
+								} else {
+									$("#result")
+										.removeClass("spam")
+										.addClass("not-spam")
+										.html("<p>Not Spam</p>");
+								}
+							},
+							error: function () {
+								// Hide loading animation
+								$("#loading").hide();
+								
+				// Enable submit button
+				$("#analyze-button").prop("disabled", false);
+
+				alert("An error occurred while making the API request.");
+			}
+		});
+	});
+
+	// Handle reset button click
+	$("#reset-button").click(function () {
+		// Clear message input
+		$("#message").val("");
+
+		// Clear result
+		$("#result").html("").removeClass("spam not-spam");
+
+		// Disable submit button
+		$("#analyze-button").prop("disabled", false);
+	});
+});
+
+</script>
+
+	</body>
+</html>
